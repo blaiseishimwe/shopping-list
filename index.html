@@ -31,9 +31,24 @@
           />
         </div>
         <div class="form-control">
-          <button type="submit" class="btn">
-            <i class="fa-solid fa-plus"></i> Add Item
-          </button>
+          <!-- Added 3 divs for additional buttons  -->
+          <div class="btn-container">
+            <button type="submit" class="btn">
+              <i class="fa-solid fa-plus"></i> Add Item
+            </button>
+          </div>
+          <div class="btn-container">
+            <button id="sort-btn1" class="btn">
+              <i class="fa-solid fa-sort-alpha-asc" aria-hidden="true"></i> Sort
+              Items A-Z
+            </button>
+          </div>
+          <div class="btn-container">
+            <button id="sort-btn2" class="btn">
+              <i class="fa-solid fa-hourglass" aria-hidden="true"></i> Sort
+              Items Time/Date
+            </button>
+          </div>
         </div>
       </form>
 
@@ -77,5 +92,6 @@
     </div>
 
     <script src="script.js"></script>
+    <script src="script1.js"></script>
   </body>
 </html>

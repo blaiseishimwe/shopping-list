@@ -34,6 +34,10 @@ header h1 {
   padding: 20px;
 }
 
+.edit-mode {
+  color: #928f8f;
+}
+
 /* Form & Input */
 .form-input {
   width: 100%;
@@ -63,8 +67,13 @@ header h1 {
   color: #fff;
   border: none;
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: 10px 23px;
   cursor: pointer;
+  
+}
+
+.btn-container {
+  padding: 2px;
 }
 
 .btn:hover {
@@ -94,6 +103,13 @@ header h1 {
 
 .btn-clear:hover {
   background-color: #f1f1f1;
+}
+
+.box {
+ 
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
 }
 
 .text-red {
