@@ -1,12 +1,15 @@
+// Get access to elements
 const itemForm = document.getElementById('item-form');
 const itemInput = document.getElementById('item-input');
+const filterInput = document.getElementById('filter');
 const itemsList = document.getElementById('item-list');
 const clearAllBtn = document.getElementById('clear');
 const filterDiv = document.querySelector('.filter');
 const sortbtn1 = document.getElementById('sort-btn1');
 const sortbtn2 = document.getElementById('sort-btn2');
-//let itemsFromStorageArr;
 let isEditMode = false;
+
+// Function to create a list item
 
 const createListItem = (newItem, time) => {
   const li = document.createElement('li');
@@ -24,35 +27,83 @@ const createListItem = (newItem, time) => {
   return li;
 };
 
-// add Item to list and local storage handler
+// add item to local storage
+
+const addItemToStorage = (itemObj) => {
+  let itemsFromStorage;
+  localStorage.getItem('items') === null
+    ? (itemsFromStorage = [])
+    : (itemsFromStorage = JSON.parse(localStorage.getItem('items')));
+
+  if (
+    itemsFromStorage.filter((item) => item.name === itemObj.name).length > 0
+  ) {
+    alert('entry exists.');
+  } else {
+    itemsFromStorage.push(itemObj);
+  }
+
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
+  return;
+};
+
+//remove item from local storage
+
+const removeItemFromStorage = (item) => {
+  itemsFromStorageArr = JSON.parse(localStorage.getItem('items'));
+  itemsFromStorageArr = itemsFromStorageArr.filter((i) => i.name !== item);
+  localStorage.setItem('items', JSON.stringify(itemsFromStorageArr));
+};
+
+// display items form local storage
+
+const displayItemsFromStorage = () => {
+  Array.from(itemsList.children).forEach((item) => item.remove());
+  localStorage.getItem('items') === null
+    ? (itemsFromStorageArr = [])
+    : (itemsFromStorageArr = JSON.parse(localStorage.getItem('items')));
+  itemsFromStorageArr.forEach((item) => {
+    itemsList.appendChild(createListItem(item.name, item.adTime));
+  });
+  checkUI();
+};
+
+// handler to append an Item to the list and save to local storage
 
 const addListItem = (e) => {
   e.preventDefault();
-  if (isEditMode) {
-    const oldItem = itemsList.querySelector('.edit-mode');
-    removeItemFromStorage(oldItem.textContent);
-    //oldItem.classList.remove('.edit-mode');
-    //oldItem.remove();
-    //checkUI();
-    isEditMode = false;
-    const inputFormButton = itemForm.querySelector('button');
-    inputFormButton.style.backgroundColor = 'black';
-    inputFormButton.innerHTML = '<i class="fa-solid fa-plus"></i> Update item';
-    filterDiv.querySelector('input').value = '';
-  }
+  const oldItem = itemsList.querySelector('.edit-mode');
   const newItem = itemInput.value;
   const time = new Date();
   const itemObj = { name: newItem, adTime: time };
-  newItem === ''
-    ? alert('Please enter a valid name.')
-    : (addItemToStorage(itemObj), displayItemsFromStorage());
+
+  if (isEditMode) {
+    isEditMode = false;
+    const inputFormButton = itemForm.querySelector('button');
+    inputFormButton.style.backgroundColor = 'black';
+    inputFormButton.innerHTML = '<i class="fa-solid fa-plus"></i> Add item';
+    filterDiv.querySelector('input').value = '';
+    if (oldItem && newItem !== '') {
+      removeItemFromStorage(oldItem.textContent);
+    }
+  }
+
+  if (newItem === '') {
+    alert('Please enter a valid name.');
+    if (oldItem) {
+      oldItem.classList.remove('edit-mode');
+    }
+  } else {
+    addItemToStorage(itemObj);
+    displayItemsFromStorage();
+  }
   checkUI();
   itemInput.value = '';
   sortbtn1.style.background = 'black';
   sortbtn2.style.background = 'black';
 };
 
-// Update List Item
+// Handler to Update a List Item
 
 const updateListItem = (e) => {
   isEditMode = true;
@@ -67,7 +118,7 @@ const updateListItem = (e) => {
   inputFormButton.innerHTML = '<i class="fa-solid fa-pen"></i> Update item';
 };
 
-// remove individual list item from list and local storage handler
+// Handler remove individual list item from list and local storage
 
 const removeListItem = (e) => {
   if (
@@ -75,49 +126,53 @@ const removeListItem = (e) => {
       `Do you want to remove ${e.target.parentNode.parentElement.textContent} from the list?`
     )
   ) {
-    //e.target.parentNode.parentElement.remove();
     removeItemFromStorage(e.target.parentNode.parentElement.textContent);
     displayItemsFromStorage();
     filterDiv.querySelector('input').value = '';
     itemInput.value = '';
     const inputFormButton = itemForm.querySelector('button');
     inputFormButton.style.backgroundColor = 'black';
-    inputFormButton.innerHTML = '<i class="fa-solid fa-plus"></i> Update item';
+    inputFormButton.innerHTML = '<i class="fa-solid fa-plus"></i> Add item';
     checkUI();
   }
   e.stopPropagation();
 };
 
-// clear All items handler
+// Handler to filter list items
+const filterInputHandler = (e) => {
+  const filterStr = e.target.value.toLowerCase();
+  const items = itemsList.querySelectorAll('li');
+  items.forEach((item) => {
+    item.textContent.toLowerCase().includes(filterStr)
+      ? (item.style.display = 'flex')
+      : (item.style.display = 'none');
+  });
+};
+
+// Handler to clear All list items
 
 const clearAllItems = (e) => {
   if (confirm('Do you want to remove all items from the list?')) {
-    //Array.from(itemsList.children).forEach((item) => item.remove());
-    //localStorage.clear();
     localStorage.setItem('items', JSON.stringify([]));
     displayItemsFromStorage();
     sortbtn1.style.background = 'black';
     sortbtn2.style.background = 'black';
-    //checkUI();
   }
 };
-// function sortAZ
+// Handler to sort list items in alphabetical order
 
 const sortAZ = (e) => {
   e.preventDefault();
   const arr = JSON.parse(localStorage.getItem('items'));
-  console.log('Sorting AZ');
   arr.sort((a, b) => {
-    const nameA = a.name.toUpperCase(); // ignore upper and lowercase
-    const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+    const nameA = a.name.toUpperCase();
+    const nameB = b.name.toUpperCase();
     if (nameA < nameB) {
       return -1;
     }
     if (nameA > nameB) {
       return 1;
     }
-
-    // names must be equal
     return 0;
   });
 
@@ -128,13 +183,11 @@ const sortAZ = (e) => {
   sortbtn2.style.background = '#4e4eb6';
 };
 
-//function sortDate
+// Handler to sort list items based on time and date
 
 const sortDate = (e) => {
   e.preventDefault();
   const arr = JSON.parse(localStorage.getItem('items'));
-  console.log('Sorting Date');
-
   arr.sort(
     (a, b) => Number(Date.parse(a.adTime)) - Number(Date.parse(b.adTime))
   );
@@ -164,6 +217,8 @@ const checkUI = () => {
 
 checkUI();
 itemForm.addEventListener('submit', addListItem);
+filterInput.addEventListener('input', filterInputHandler);
 clearAllBtn.addEventListener('click', clearAllItems);
 sortbtn1.addEventListener('click', sortAZ);
 sortbtn2.addEventListener('click', sortDate);
+window.addEventListener('DOMContentLoaded', displayItemsFromStorage);
